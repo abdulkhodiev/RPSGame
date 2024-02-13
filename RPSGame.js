@@ -4,6 +4,7 @@ class RPSGame {
     constructor(moves) {
         this.moves = moves;
         this.key = this.generateKey();
+        this.hmac = this.generateHMAC(moves.join());
     }
 
     generateKey() {
@@ -12,7 +13,7 @@ class RPSGame {
 
     generateHMAC(move) {
         const hmac = crypto.createHmac("sha256", this.key);
-        hmac.update(move);
+        hmac.update(Buffer.from(move, "utf-8"));
         return hmac.digest("hex");
     }
 

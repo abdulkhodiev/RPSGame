@@ -1,5 +1,4 @@
 const RPSGame = require("./RPSGame");
-const { generateKey, generateHMAC } = require("./gameLogic");
 const displayHelpTable = require("./displayTable");
 
 function main() {
@@ -15,7 +14,6 @@ function main() {
     const game = new RPSGame(moves);
 
     console.log("\nWelcome to the Rock-Paper-Scissors Game!");
-    console.log(`\nKey: ${game.key}`);
 
     const readline = require("readline").createInterface({
         input: process.stdin,
@@ -23,6 +21,10 @@ function main() {
     });
 
     function promptUser() {
+        const compMove = moves[Math.floor(Math.random() * moves.length)];
+        const hmac = game.generateHMAC(compMove);
+        console.log(`\nHMAC: ${hmac}`);
+
         console.log("\nAvailable moves:\n");
         moves.forEach((move, index) => {
             console.log(`${index + 1} - ${move}`);
@@ -36,6 +38,7 @@ function main() {
                 process.exit(0);
             } else if (userChoice.toLowerCase() === "?") {
                 displayHelpTable(moves, game.determineWinner.bind(game));
+                console.log(`\nKey: ${game.key}`);
                 promptUser();
             } else if (
                 !isNaN(userChoice) &&
@@ -43,18 +46,12 @@ function main() {
                 parseInt(userChoice) <= moves.length
             ) {
                 const userMove = moves[parseInt(userChoice) - 1];
-                const compMove =
-                    moves[Math.floor(Math.random() * moves.length)];
-                const hmac = generateHMAC(game.key, compMove);
-
-                console.log(`\nComputer's move: ${compMove}`);
-                console.log(`\nHMAC: ${hmac}\n`);
-
+                console.log(`\nYour move: ${userMove}`);
+                console.log(`Computer's move: ${compMove}`);
                 const result = game.determineWinner(userMove, compMove);
-                console.log(result);
-                console.log(`\nKey: ${game.key}`);
-
-                promptUser();
+                console.log(`\n${result}`);
+                console.log(`\nKey: ${game.key}\n`);
+                readline.close();
             } else {
                 console.log("\nInvalid choice. Please try again.");
                 promptUser();
